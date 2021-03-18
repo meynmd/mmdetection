@@ -1,5 +1,7 @@
 import warnings
 
+import matplotlib.pyplot as plt
+
 import mmcv
 import numpy as np
 import torch
@@ -185,7 +187,9 @@ def show_result_pyplot(model,
                        result,
                        score_thr=0.3,
                        title='result',
-                       wait_time=0):
+                       wait_time=0,
+                       save=None,
+                       fig_size=(15, 10)):
     """Visualize the detection results on the image.
 
     Args:
@@ -200,12 +204,19 @@ def show_result_pyplot(model,
     """
     if hasattr(model, 'module'):
         model = model.module
-    model.show_result(
+    img = model.show_result(
         img,
         result,
         score_thr=score_thr,
-        show=True,
-        wait_time=wait_time,
-        win_name=title,
-        bbox_color=(72, 101, 241),
-        text_color=(72, 101, 241))
+        show=False,
+        # wait_time=wait_time,
+        # win_name=title,
+        # bbox_color=(72, 101, 241),
+        # text_color=(72, 101, 241))
+    )
+    plt.figure(figsize=fig_size)
+    plt.imshow(mmcv.bgr2rgb(img))
+    if save:
+        plt.savefig(save)
+    else:
+        plt.show()

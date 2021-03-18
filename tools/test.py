@@ -152,6 +152,8 @@ def main():
             for ds_cfg in cfg.data.test:
                 ds_cfg.pipeline = replace_ImageToTensor(ds_cfg.pipeline)
 
+    print('samples_per_gpu: {}'.format(samples_per_gpu))
+
     # init distributed env first, since logger depends on the dist info.
     if args.launcher == 'none':
         distributed = False
@@ -160,6 +162,8 @@ def main():
         init_dist(args.launcher, **cfg.dist_params)
 
     # build the dataloader
+    print('loading dataset:')
+    print(cfg.data.test)
     dataset = build_dataset(cfg.data.test)
     data_loader = build_dataloader(
         dataset,

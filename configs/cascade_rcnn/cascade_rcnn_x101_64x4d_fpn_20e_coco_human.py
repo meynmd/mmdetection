@@ -14,22 +14,25 @@ model = dict(
         style='pytorch'))
 
 dataset_type = 'CocoDataset'
+classes = ('person',)
 data = dict(
     samples_per_gpu=2,
-    workers_per_gpu=2,
+    workers_per_gpu=8,
     train=dict(
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/coco/',
         ann_file='instances_train2017.json',
-        img_prefix='images/train2017/'
+        img_prefix='images/train2017/',
+        samples_per_gpu=1
     ),
     val=dict(
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/coco/',
         ann_file='instances_train2017.json',
-        img_prefix='images/val2017/'
+        img_prefix='images/val2017/',
+        samples_per_gpu=8
     ),
     test=dict(
-        samples_per_gpu=4
+        samples_per_gpu=8
     )
 )

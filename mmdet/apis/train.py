@@ -3,6 +3,7 @@ import warnings
 
 import numpy as np
 import torch
+
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import (HOOKS, DistSamplerSeedHook, EpochBasedRunner,
                          Fp16OptimizerHook, OptimizerHook, build_optimizer,
@@ -85,7 +86,18 @@ def train_detector(model,
             model.cuda(cfg.gpu_ids[0]), device_ids=cfg.gpu_ids)
 
     # build runner
-    optimizer = build_optimizer(model, cfg.optimizer)
+    
+    # optimizer = build_optimizer(model, cfg.optimizer)
+    model_params, classifier_params = [], []
+    for name, param in model.named_parameters(): 
+        if name.find('fc_cls') == -1:
+            model_params.append(param)
+        else:
+            classifier_params.append(param)
+    optimizer = torch.optim.SGD([
+        {'params': model_params, 'lr': 0.},
+        {'params': classifier_params}
+    ], lr=1e-3, momentum=0.9, weight_decay=1e-4)
 
     if 'runner' not in cfg:
         cfg.runner = {
