@@ -23,7 +23,7 @@ def get_args():
                         help='Video File Path', default=None)
     parser.add_argument('-m', '--model_type', default='cascade_rcnn',
                         help='model name from resources.models.MODELS')
-    parser.add_argument('--write_input_images',  defaut=None,
+    parser.add_argument('--write_input_images',  default=None,
                         help='if reading from video, write input frames')
     parser.add_argument('--device', default='cuda:0', 
                         help='Device used for inference')
@@ -105,10 +105,11 @@ def main():
         video_date = '20' + video_name.replace('.', '-')
         video_loc = os.path.basename(os.path.dirname(video_file))
         frame_basename = '{}_{}'.format(video_loc, video_date)
-        imgs, boxes, class_labels = run_video_det(model, video_file,
-                                                  opts.write_input_images,
-                                                  frame_basename,
-                                                  opts.batch_size)
+        boxes, class_labels = run_video_det(model, video_file,
+                                            opts.write_input_images,
+                                            frame_basename,
+                                            opts.batch_size)
+        imgfiles = glob(os.path.join(opts.write_input_images, '*.jpg'))
 
     # show the results
     print('writing results...')
