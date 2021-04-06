@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+import mmcv
 from mmdet.apis import inference_detector, init_detector, show_result_pyplot
 
 from tools.inference import get_model, estimate_boxes, visualize
@@ -16,9 +17,14 @@ from resources.models import MODELS
 def get_args():
     
     parser = ArgumentParser()
-    parser.add_argument('-i', '--img_dir', help='Image directory')
+    parser.add_argument('-i', '--img_dir',
+                        help='Image Directory', default=None)
+    parser.add_argument('-v', '--video_file',
+                        help='Video File Path', default=None)
     parser.add_argument('-m', '--model_type', default='cascade_rcnn',
                         help='model name from resources.models.MODELS')
+    parser.add_argument('--write_input_images',  defaut=None,
+                        help='if reading from video, write input frames')
     parser.add_argument('--device', default='cuda:0', 
                         help='Device used for inference')
     parser.add_argument('-t', '--thresholds', 
@@ -31,8 +37,7 @@ def get_args():
     return args
 
 
-def compute_detections(model, img_list, batch_size=64, threshold=0., 
-                       classes=[0]):
+def run_img_det(model, img_list, batch_size=64, threshold=0., classes=[0]):
 
     imgfiles = np.array(img_list)
     n_batches = int(np.ceil(imgfiles.size/batch_size))
@@ -42,32 +47,68 @@ def compute_detections(model, img_list, batch_size=64, threshold=0.,
     for i in tqdm(range(n_batches), desc='computing detections'):
         batch = img_batches[i]
         bb, bl = estimate_boxes(model, batch.tolist(), threshold, classes)
-        # import pdb; pdb.set_trace()
         boxes += bb
         labels += bl
     
     return boxes, labels
 
 
+def run_video_det(model, video_path, out_img_dir, out_basename,
+                  batch_size=64, threshold=0., classes=[0]):
+
+    if not os.path.exists(out_img_dir):
+        os.makedirs(out_img_dir)
+    else:
+        if glob(os.path.join(out_img_dir, '*')) != []:
+            print('WARNING: image directory {} is not empty, some '
+                  'contents may be overwritten'.format(out_img_dir))
+
+    video = mmcv.VideoReader(video_path)
+    fn_tmpl = out_basename + '{:06d}.jpg'
+    video.cvt2frames(out_img_dir, filename_tmpl=fn_tmpl)
+    frame_imgs = glob(os.path.join(out_img_dir, '*.jpg'))
+
+    return run_img_det(model, frame_imgs, batch_size, threshold, classes)
+
+
 def main():
 
     opts = get_args()
     model_opts = MODELS[opts.model_type]
-    
-    out_dir = opts.save
+    assert (opts.img_dir is None) != (opts.video_file is None), 'cannot do '\
+                                                                'both image '\
+                                                                'and video'
     out_img_dir = os.path.join(opts.save, 'visualization')
     if opts.save and not os.path.exists(out_img_dir):
-            os.makedirs(out_img_dir)
+        os.makedirs(out_img_dir)
 
     # build the model from a config file and a checkpoint file
-    model = get_model(model_opts['config'], checkpoint=model_opts['checkpoint'], 
+    model = get_model(model_opts['config'],
+                      checkpoint=model_opts['checkpoint'],
                       device=opts.device)
 
-    imgfiles = glob(os.path.join(opts.img_dir, '*'))
-    
-    # boxes: list of ndarrays size (N_DET, 5) 
-    boxes, class_labels = compute_detections(model, imgfiles, 
-                                              batch_size=opts.batch_size)
+    if opts.img_dir:
+        imgfiles = glob(os.path.join(opts.img_dir, '*'))
+        # boxes: list of ndarrays size (N_DET, 5)
+        boxes, class_labels = run_img_det(model, imgfiles,
+                                          batch_size=opts.batch_size)
+    else:
+        # video inputs
+        assert opts.write_input_images is not None, 'must specify where to '\
+                                                    'write input images '\
+                                                    'extracted from video'
+        video_file = os.path.abspath(opts.video_file)
+        if not os.path.isfile(video_file):
+            raise FileNotFoundError('cannot find {}'.format(video_file))
+
+        video_name = os.path.splitext(os.path.basename(video_file))[0]
+        video_date = '20' + video_name.replace('.', '-')
+        video_loc = os.path.basename(os.path.dirname(video_file))
+        frame_basename = '{}_{}'.format(video_loc, video_date)
+        imgs, boxes, class_labels = run_video_det(model, video_file,
+                                                  opts.write_input_images,
+                                                  frame_basename,
+                                                  opts.batch_size)
 
     # show the results
     print('writing results...')

@@ -3,7 +3,7 @@ import os
 import numpy as np
 import mmcv
 
-from mmdet.apis import inference_detector, init_detector, show_result_pyplot
+from mmdet.apis import inference_detector, init_detector
 
 
 def get_model(config, checkpoint, device):
