@@ -64,7 +64,7 @@ def run_video_det(model, video_path, out_img_dir, out_basename,
                   'contents may be overwritten'.format(out_img_dir))
 
     video = mmcv.VideoReader(video_path)
-    fn_tmpl = out_basename + '{:06d}.jpg'
+    fn_tmpl = out_basename + '_{:06d}.jpg'
     video.cvt2frames(out_img_dir, filename_tmpl=fn_tmpl)
     frame_imgs = glob(os.path.join(out_img_dir, '*.jpg'))
 
