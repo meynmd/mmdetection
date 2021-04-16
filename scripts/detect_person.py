@@ -32,6 +32,7 @@ def get_args():
                         help='bbox score thresholds')
     parser.add_argument('-b', '--batch_size', default=16)
     parser.add_argument('-s', '--save', default=None)
+    parser.add_argument('--visualize', action='store_true')
     args = parser.parse_args()
 
     return args
@@ -67,6 +68,11 @@ def run_video_det(model, video_path, out_img_dir, out_basename,
     fn_tmpl = out_basename + '_{:06d}.jpg'
     video.cvt2frames(out_img_dir, filename_tmpl=fn_tmpl)
     frame_imgs = glob(os.path.join(out_img_dir, '*.jpg'))
+
+    n_imgs = len(frame_imgs)
+    if n_imgs > 10000:
+        frame_imgs.sort()
+        frame_imgs = frame_imgs[n_imgs//3: 2*n_imgs//3]
 
     return run_img_det(model, frame_imgs, batch_size, threshold, classes)
 
@@ -122,7 +128,8 @@ def main():
                                                                threshold))
             score_mask = box[:, -1] >= threshold
             box_t, label_t = box[score_mask], label[score_mask]
-            visualize(imgf, box_t, label_t, out_file=out_path)
+            if opts.visualize:
+                visualize(imgf, box_t, label_t, out_file=out_path)
 
         box = box[box[:, -1] >= 1e-2]
         detection_annotation = {
