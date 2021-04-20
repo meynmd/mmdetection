@@ -69,6 +69,11 @@ def run_video_det(model, video_path, out_img_dir, out_basename,
     video.cvt2frames(out_img_dir, filename_tmpl=fn_tmpl)
     frame_imgs = glob(os.path.join(out_img_dir, '*.jpg'))
 
+    n_imgs = len(frame_imgs)
+    if n_imgs > 10000:
+        frame_imgs.sort()
+        frame_imgs = frame_imgs[n_imgs//3: 2*n_imgs//3]
+
     return run_img_det(model, frame_imgs, batch_size, threshold, classes)
 
 
