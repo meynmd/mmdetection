@@ -32,6 +32,7 @@ def get_args():
                         help='bbox score thresholds')
     parser.add_argument('-b', '--batch_size', default=16)
     parser.add_argument('-s', '--save', default=None)
+    parser.add_argument('--visualize', action='store_true')
     args = parser.parse_args()
 
     return args
@@ -122,7 +123,8 @@ def main():
                                                                threshold))
             score_mask = box[:, -1] >= threshold
             box_t, label_t = box[score_mask], label[score_mask]
-            visualize(imgf, box_t, label_t, out_file=out_path)
+            if opts.visualize:
+                visualize(imgf, box_t, label_t, out_file=out_path)
 
         box = box[box[:, -1] >= 1e-2]
         detection_annotation = {
@@ -141,10 +143,15 @@ def main():
             })
         results.append(detection_annotation)
 
-    results_path = os.path.join(opts.save, 'detections.json')
+    if opts.video_file:
+        results_path = os.path.join(opts.save, 'detections_{}.json'.format(video_date))
+    else:
+        results_path = os.path.join(opts.save, 'detections.json')
+
     with open(results_path, 'w') as wp:
         json.dump(results, wp, indent=4)
     print('wrote detection results to: {}'.format(results_path))
+
 
 if __name__ == '__main__':
     main()
