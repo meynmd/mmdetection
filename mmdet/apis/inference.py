@@ -137,7 +137,7 @@ def inference_detector(model, imgs):
             assert not isinstance(
                 m, RoIPool
             ), 'CPU inference with RoIPool is not supported currently.'
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     # forward the model
     with torch.no_grad():
         results = model(return_loss=False, rescale=True, **data)
