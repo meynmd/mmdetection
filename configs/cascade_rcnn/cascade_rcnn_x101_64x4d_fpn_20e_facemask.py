@@ -20,14 +20,14 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        data_root='/proj/vacsine/matt/data/facemask/coco-format',
+        data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
         ann_file='annotations/train.json',
         img_prefix='images/train/',
         classes=classes
     ),
     val=dict(
         type=dataset_type,
-        data_root='/proj/vacsine/matt/data/facemask/coco-format',
+        data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
         ann_file='annotations/val.json',
         img_prefix='images/val/',
         classes=classes
