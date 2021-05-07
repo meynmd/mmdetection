@@ -129,7 +129,7 @@ def main():
             score_mask = box[:, -1] >= threshold
             box_t, label_t = box[score_mask], label[score_mask]
             if opts.visualize:
-                visualize(imgf, box_t, label_t, out_file=out_path)
+                visualize(imgf, box_t, label_t, out_file=out_path, label_names=['No', 'Yes'])
 
         box = box[box[:, -1] >= 1e-2]
         detection_annotation = {

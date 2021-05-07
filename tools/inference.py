@@ -36,9 +36,9 @@ def estimate_boxes(model, img, score_thr=0.3, classes=[0]):
     return all_bboxes, all_labels
 
 
-def visualize(imgfile, bboxes, labels, out_file=None):
+def visualize(imgfile, bboxes, labels, out_file=None, label_names=None):
 
-    img = mmcv.imread(imgfile)        
+    img = mmcv.imread(imgfile)
     mmcv.imshow_det_bboxes(
         img,
         bboxes,
@@ -48,7 +48,7 @@ def visualize(imgfile, bboxes, labels, out_file=None):
         # thickness=thickness,
         font_scale=0.25,
         show=False,
-        out_file=out_file)
+        out_file=out_file,
+        class_names=label_names)
 
     return img
-
