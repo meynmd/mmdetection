@@ -14,7 +14,7 @@ model = dict(
         style='pytorch'))
 
 dataset_type = 'CocoDataset'
-classes = ('No-Mask', 'Mask')
+classes = ('Mask', 'No-Mask')
 data = dict(
     samples_per_gpu=2,
     workers_per_gpu=2,
