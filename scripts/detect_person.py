@@ -144,7 +144,8 @@ def main():
                 'y_min': str(box[i, 1]),
                 'width': str(box[i, 2]),
                 'height': str(box[i, 3]),
-                'confidence': '{:.4f}'.format(box[i, 4])
+                'confidence': '{:.4f}'.format(box[i, 4]),
+                'class': str(label[i])
             })
         results.append(detection_annotation)
 
