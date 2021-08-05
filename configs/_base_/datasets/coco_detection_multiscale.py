@@ -32,8 +32,8 @@ test_pipeline = [
 
 classes = ('Mask', 'No-Mask')
 data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=2,
+    samples_per_gpu=4,
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
@@ -43,7 +43,6 @@ data = dict(
         pipeline=train_pipeline
     ),
     val=dict(
-        samples_per_gpu=4,
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
         ann_file='annotations/val.json',
@@ -52,7 +51,6 @@ data = dict(
         pipeline=test_pipeline
     ),
     test=dict(
-        samples_per_gpu=4,
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
         ann_file='annotations/val.json',
@@ -61,28 +59,5 @@ data = dict(
         pipeline=test_pipeline
     )
 )
-
-# classes = ('Mask', 'No-Mask')
-# data = dict(
-#     samples_per_gpu=2,
-#     workers_per_gpu=2,
-#     train=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_train2017.json',
-#         img_prefix=data_root + 'train2017/',
-#         classes=classes,
-#         pipeline=train_pipeline),
-#     val=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_val2017.json',
-#         img_prefix=data_root + 'val2017/',
-#         classes=classes,
-#         pipeline=test_pipeline),
-#     test=dict(
-#         type=dataset_type,
-#         ann_file=data_root + 'annotations/instances_val2017.json',
-#         img_prefix=data_root + 'val2017/',
-#         classes=classes,
-#         pipeline=test_pipeline))
 
 evaluation = dict(interval=1, metric='bbox')
