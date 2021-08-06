@@ -32,8 +32,8 @@ test_pipeline = [
 
 classes = ('Mask', 'No-Mask')
 data = dict(
-    samples_per_gpu=4,
-    workers_per_gpu=4,
+    samples_per_gpu=16,
+    workers_per_gpu=16,
     train=dict(
         type=dataset_type,
         data_root='/proj/vacsine/matt/data/facemask/face-mask-combined-dataset',
