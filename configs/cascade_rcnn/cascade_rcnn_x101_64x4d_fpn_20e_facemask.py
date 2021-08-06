@@ -37,4 +37,12 @@ model = dict(
 #     )
 # )
 
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        dict(type='TensorboardLoggerHook')
+    ]
+)
+
 load_from = '/proj/vacsine/matt/detect/mmdetection/pretrained/cascade_rcnn_x101_64x4d_fpn/cascade_rcnn_x101_64x4d_fpn_20e_coco_20200509_224357-051557b1.pth'
