@@ -155,12 +155,12 @@ class EvalHook(Hook):
                                        show=False,
                                        return_visualization=True)
 
-        for images in vis:
-            if len(images.shape) == 4:
-                grid = torchvision.utils.make_grid(images)
-            else:
-                grid = images
-            self.writer.add_image('val_vis', grid, runner.inner_iter + 1)
+
+        if len(vis.shape) == 4:
+            grid = torchvision.utils.make_grid(vis)
+        else:
+            grid = vis
+            self.writer.add_image('val_vis', grid, runner.iter + 1)
 
         key_score = self.evaluate(runner, results)
         if self.save_best:

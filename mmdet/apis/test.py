@@ -25,7 +25,7 @@ def single_gpu_test(model,
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))
-    visualizations = []
+    visualizations, n_vis = [], 0
     for j, data in enumerate(data_loader):
         with torch.no_grad():
             result = model(return_loss=False, rescale=True, **data)
@@ -40,7 +40,6 @@ def single_gpu_test(model,
             imgs = tensor2imgs(img_tensor, **img_metas[0]['img_norm_cfg'])
             assert len(imgs) == len(img_metas)
 
-            batch_vis = []
             for i, (img, img_meta) in enumerate(zip(imgs, img_metas)):
                 h, w, _ = img_meta['img_shape']
                 img_show = img[:h, :w, :]
@@ -60,12 +59,8 @@ def single_gpu_test(model,
                     out_file=out_file,
                     score_thr=show_score_thr)
 
-                if return_visualization:
-                    batch_vis.append(np.transpose(visualization, (2, 0, 1)))
-
-            if j < 8:
-                batch_vis = np.stack(batch_vis, dim=0)
-                visualizations.append(torch.tensor(batch_vis))
+                if return_visualization and n_vis < 16:
+                    visualizations.append(np.transpose(visualization, (2, 0, 1)))
 
         # encode mask results
         if isinstance(result[0], tuple):
@@ -77,7 +72,7 @@ def single_gpu_test(model,
             prog_bar.update()
 
     if return_visualization:
-        return results, visualizations
+        return results, torch.tensor(np.concatenate(visualizations, axis=0))
     else:
         return results
 
