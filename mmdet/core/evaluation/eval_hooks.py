@@ -156,7 +156,10 @@ class EvalHook(Hook):
                                        return_visualization=True)
 
         for images in vis:
-            grid = torchvision.utils.make_grid(images)
+            if len(images.shape) == 4:
+                grid = torchvision.utils.make_grid(images)
+            else:
+                grid = images
             self.writer.add_image('val_vis', grid, runner.inner_iter + 1)
 
         key_score = self.evaluate(runner, results)
