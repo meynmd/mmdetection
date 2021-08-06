@@ -4,6 +4,8 @@ import shutil
 import tempfile
 import time
 
+import numpy as np
+
 import mmcv
 import torch
 import torch.distributed as dist
@@ -59,11 +61,11 @@ def single_gpu_test(model,
                     score_thr=show_score_thr)
 
                 if return_visualization:
-                    batch_vis.append(visualization)
+                    batch_vis.append(np.transpose(visualization, (2, 0, 1)))
 
             if j < 8:
-                batch_vis = torch.stack(batch_vis, dim=0)
-                visualizations.append(batch_vis)
+                batch_vis = np.stack(batch_vis, dim=0)
+                visualizations.append(torch.tensor(batch_vis))
 
         # encode mask results
         if isinstance(result[0], tuple):
