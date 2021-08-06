@@ -164,6 +164,7 @@ def train_detector(model,
         log_dir = os.path.join(cfg.work_dir, 'val_log')
         if os.path.exists(log_dir):
             logger.info(f'removing logging dir "{log_dir}"')
+            shutil.rmtree(log_dir)
         logger.info(f'creating logging dir "{log_dir}"')
         os.makedirs(log_dir)
         runner.register_hook(eval_hook(val_dataloader, log_dir, **eval_cfg))
