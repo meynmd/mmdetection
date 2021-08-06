@@ -260,6 +260,7 @@ class BaseDetector(nn.Module, metaclass=ABCMeta):
         not implemented with this method, but an evaluation hook.
         """
         losses = self(**data)
+
         loss, log_vars = self._parse_losses(losses)
 
         outputs = dict(

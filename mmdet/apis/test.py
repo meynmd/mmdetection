@@ -17,17 +17,19 @@ def single_gpu_test(model,
                     data_loader,
                     show=False,
                     out_dir=None,
-                    show_score_thr=0.3):
+                    show_score_thr=0.3,
+                    return_visualization=False):
     model.eval()
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))
+    visualizations = []
     for i, data in enumerate(data_loader):
         with torch.no_grad():
             result = model(return_loss=False, rescale=True, **data)
 
         batch_size = len(result)
-        if show or out_dir:
+        if show or out_dir or return_visualization:
             if batch_size == 1 and isinstance(data['img'][0], torch.Tensor):
                 img_tensor = data['img'][0]
             else:
@@ -48,12 +50,15 @@ def single_gpu_test(model,
                 else:
                     out_file = None
 
-                model.module.show_result(
+                visualization = model.module.show_result(
                     img_show,
                     result[i],
                     show=show,
                     out_file=out_file,
                     score_thr=show_score_thr)
+
+                if return_visualization:
+                    visualizations.append(visualization)
 
         # encode mask results
         if isinstance(result[0], tuple):
@@ -63,7 +68,11 @@ def single_gpu_test(model,
 
         for _ in range(batch_size):
             prog_bar.update()
-    return results
+
+    if return_visualization:
+        return results, visualizations
+    else:
+        return results
 
 
 def multi_gpu_test(model, data_loader, tmpdir=None, gpu_collect=False):

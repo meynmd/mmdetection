@@ -1,3 +1,5 @@
+import os
+import shutil
 import random
 import warnings
 
@@ -159,7 +161,12 @@ def train_detector(model,
         eval_cfg = cfg.get('evaluation', {})
         eval_cfg['by_epoch'] = cfg.runner['type'] != 'IterBasedRunner'
         eval_hook = DistEvalHook if distributed else EvalHook
-        runner.register_hook(eval_hook(val_dataloader, **eval_cfg))
+        log_dir = os.path.join(cfg.work_dir, 'val_log')
+        if os.path.exists(log_dir):
+            logger.info(f'removing logging dir "{log_dir}"')
+        logger.info(f'creating logging dir "{log_dir}"')
+        os.makedirs(log_dir)
+        runner.register_hook(eval_hook(val_dataloader, log_dir, **eval_cfg))
 
     # user-defined hooks
     if cfg.get('custom_hooks', None):

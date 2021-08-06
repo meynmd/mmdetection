@@ -10,6 +10,9 @@ from torch.utils.data import DataLoader
 
 from mmdet.utils import get_root_logger
 
+import torchvision
+from torch.utils.tensorboard import SummaryWriter
+
 
 class EvalHook(Hook):
     """Evaluation hook.
@@ -48,6 +51,7 @@ class EvalHook(Hook):
 
     def __init__(self,
                  dataloader,
+                 log_dir,
                  start=None,
                  interval=1,
                  by_epoch=True,
@@ -77,6 +81,9 @@ class EvalHook(Hook):
 
         if self.save_best is not None:
             self._init_rule(rule, self.save_best)
+
+
+        self.writer = SummaryWriter(log_dir)
 
     def _init_rule(self, rule, key_indicator):
         """Initialize rule, key_indicator, comparison_func, and best score.
@@ -143,7 +150,15 @@ class EvalHook(Hook):
         if not self.by_epoch or not self.evaluation_flag(runner):
             return
         from mmdet.apis import single_gpu_test
-        results = single_gpu_test(runner.model, self.dataloader, show=False)
+        results, vis = single_gpu_test(runner.model,
+                                       self.dataloader,
+                                       show=False,
+                                       return_visualization=True)
+
+        for images in vis:
+            grid = torchvision.utils.make_grid(images)
+            self.writer.add_image('val_vis', grid, runner.inner_iter + 1)
+
         key_score = self.evaluate(runner, results)
         if self.save_best:
             self.save_best_checkpoint(runner, key_score)
